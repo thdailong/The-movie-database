@@ -1,18 +1,22 @@
 import {useState, useCallback} from 'react';
 import {
-  fetchUpcomingMovies,
-  fetchNowPlayingMovies,
-  fetchPopularMovies,
-  FetchMoviesParams,
+  discoverMovies,
+  DiscoverMoviesParams,
 } from '@/api';
 import {IMovie} from '@/types/movie';
 import {IMoviesResponse} from '@/types/api';
+import {CategoryType} from '@/screens/home/Category';
+import {SortByType} from '@/screens/home/SortBy';
 
 export type MovieCategory = 'upcoming' | 'now_playing' | 'popular';
 
-interface UseMoviesOptions extends FetchMoviesParams {
-  category: MovieCategory;
+interface UseMoviesOptions {
+  category: CategoryType;
   enabled?: boolean;
+  sortBy?: SortByType | null;
+  query?: string;
+  page?: number;
+  language?: string;
 }
 
 interface UseMoviesReturn {
@@ -29,7 +33,14 @@ interface UseMoviesReturn {
 }
 
 export const useMovies = (options: UseMoviesOptions): UseMoviesReturn => {
-  const {category, page: initialPage = 1, language = 'en-US', enabled = true} = options;
+  const {
+    category,
+    page: initialPage = 1,
+    language = 'en-US',
+    enabled = true,
+    sortBy = null,
+    query,
+  } = options;
 
   const [movies, setMovies] = useState<IMovie[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,21 +61,13 @@ export const useMovies = (options: UseMoviesOptions): UseMoviesReturn => {
         }
         setError(null);
 
-        let response: IMoviesResponse;
-
-        switch (category) {
-          case 'upcoming':
-            response = await fetchUpcomingMovies({page, language});
-            break;
-          case 'now_playing':
-            response = await fetchNowPlayingMovies({page, language});
-            break;
-          case 'popular':
-            response = await fetchPopularMovies({page, language});
-            break;
-          default:
-            throw new Error(`Unknown category: ${category}`);
-        }
+        const response = await discoverMovies({
+          page,
+          language,
+          category,
+          sortBy,
+          query,
+        });
 
         if (append) {
           setMovies(prev => [...prev, ...response.results]);
@@ -82,7 +85,7 @@ export const useMovies = (options: UseMoviesOptions): UseMoviesReturn => {
         setIsLoadingMore(false);
       }
     },
-    [category, language, enabled],
+    [category, language, enabled, sortBy, query],
   );
 
   // Exposed fetchMovies function for initial fetch

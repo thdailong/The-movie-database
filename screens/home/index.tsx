@@ -94,13 +94,18 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     initialCategory.current = category;
     initialSortBy.current = sortBy;
     initialSearchText.current = searchText;
+    
+    // Trigger fetch
     fetchMovies(1);
   };
 
   const {movies, fetchMovies, isLoading, isLoadingMore, loadMore} = useMovies({
     category: category,
+    sortBy: sortBy,
+    query: searchText || undefined,
   })
 
+  // Fetch when preferences load or category changes
   useEffect(() => {
     if (!isLoadingPreferences) {
       fetchMovies(1);
