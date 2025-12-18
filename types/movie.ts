@@ -1,3 +1,5 @@
+import { ICredits } from "./movieDetail";
+
 export interface IMovie {
     adult: boolean;
     backdrop_path: string;

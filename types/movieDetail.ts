@@ -1,3 +1,5 @@
+import { IMovie } from "./movie";
+
 export interface IGenre {
   id: number;
   name: string;
@@ -33,6 +35,7 @@ export interface ICrew {
 }
 
 export interface ICredits {
+  id: number;
   cast: ICast[];
   crew: ICrew[];
 }
@@ -90,5 +93,24 @@ export interface IMovieDetail {
   video: boolean;
   vote_average: number;
   vote_count: number;
+  credits?: ICredits;
 }
 
+export const movieToIMovie = (movieDetail: IMovieDetail): IMovie => {
+  return {
+    adult: movieDetail.adult,
+    backdrop_path: movieDetail.backdrop_path,
+    genre_ids: movieDetail.genres.map(g => g.id),
+    id: movieDetail.id,
+    original_language: movieDetail.original_language,
+    original_title: movieDetail.original_title,
+    overview: movieDetail.overview,
+    popularity: movieDetail.popularity,
+    poster_path: movieDetail.poster_path,
+    release_date: movieDetail.release_date,
+    title: movieDetail.title,
+    video: movieDetail.video,
+    vote_average: movieDetail.vote_average,
+    vote_count: movieDetail.vote_count,
+  };
+};

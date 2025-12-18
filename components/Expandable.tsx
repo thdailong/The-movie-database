@@ -65,7 +65,6 @@ const Expandable: React.FC<ExpandableProps> = ({
 
   const onContentLayout = (event: LayoutChangeEvent) => {
     const { height } = event.nativeEvent.layout;
-    console.log('height content layout', height);
     if (height > 0 && contentHeight === 0) {
       setContentHeight(height);
     }

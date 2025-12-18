@@ -37,13 +37,12 @@ const RecommendedMovies: React.FC<RecommendedMoviesProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Recommended movies</Text>
+      <Text style={styles.sectionTitle}>Recommendations</Text>
       <FlatList
         data={movies}
         renderItem={renderMovieItem}
         keyExtractor={item => `recommended-${item.id}`}
         horizontal
-        showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       />
     </View>
@@ -55,21 +54,20 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: colors.white,
-    marginBottom: 16,
+    marginBottom: 20,
     paddingHorizontal: 16,
   },
   listContent: {
     paddingHorizontal: 16,
   },
   movieItem: {
-    width: 120,
+    width: 280,
     marginRight: 16,
   },
   poster: {
-    width: 120,
+    width: 280,
     height: 180,
     borderRadius: 8,
     backgroundColor: colors.gray.dark,
@@ -77,9 +75,6 @@ const styles = StyleSheet.create({
   },
   movieTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: colors.white,
-    textAlign: 'center',
   },
 });
 

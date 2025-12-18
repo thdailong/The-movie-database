@@ -7,13 +7,18 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
+    "start:reset": "react-native start --reset-cache",
+    "clean": "rm -rf node_modules/.cache && rm -rf /tmp/metro-* && rm -rf /tmp/haste-*",
+    "clean:all": "npm run clean && watchman watch-del-all 2>/dev/null || true",
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native/new-app-screen": "0.83.0",
     "@react-navigation/bottom-tabs": "^7.8.12",
     "@react-navigation/native": "^7.1.25",
     "@react-navigation/native-stack": "^7.8.6",
+    "axios": "^1.13.2",
     "react": "19.2.0",
     "react-native": "0.83.0",
     "react-native-gesture-handler": "^2.29.1",
@@ -39,6 +44,7 @@
     "eslint": "^8.19.0",
     "jest": "^29.6.3",
     "prettier": "2.8.8",
+    "react-native-dotenv": "^3.4.11",
     "react-native-svg-transformer": "^1.5.2",
     "react-test-renderer": "19.2.0",
     "typescript": "^5.8.3"

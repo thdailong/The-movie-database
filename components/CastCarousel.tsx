@@ -2,6 +2,7 @@ import React from 'react';
 import {View, Text, StyleSheet, FlatList, Image} from 'react-native';
 import {ICredit} from '@/types/movieDetail';
 import {colors} from '@/theme';
+import Card from './Card';
 
 interface CastCarouselProps {
   cast: ICredit[];
@@ -9,7 +10,7 @@ interface CastCarouselProps {
 
 const CastCarousel: React.FC<CastCarouselProps> = ({cast}) => {
   const renderCastItem = ({item}: {item: ICredit}) => (
-    <View style={styles.castItem}>
+    <Card style={styles.castItem}>
       <View style={styles.avatarContainer}>
         {item.profile_path ? (
           <Image
@@ -27,13 +28,13 @@ const CastCarousel: React.FC<CastCarouselProps> = ({cast}) => {
           </View>
         )}
       </View>
-      <Text style={styles.castName} numberOfLines={2}>
+      <Text style={styles.castName}>
         {item.name}
       </Text>
-      <Text style={styles.castRole} numberOfLines={1}>
+      <Text style={styles.castRole} numberOfLines={2}>
         {item.character}
       </Text>
-    </View>
+    </Card>
   );
 
   if (!cast || cast.length === 0) {
@@ -46,11 +47,13 @@ const CastCarousel: React.FC<CastCarouselProps> = ({cast}) => {
       <FlatList
         data={cast}
         renderItem={renderCastItem}
-        keyExtractor={item => `cast-${item.cast_id || item.id}`}
+        keyExtractor={item => `cast-${item.id}`}
         horizontal
-        showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
+        style={styles.list}
       />
+
+      <View style={styles.divider} />
     </View>
   );
 };
@@ -60,17 +63,19 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: colors.white,
     marginBottom: 16,
     paddingHorizontal: 16,
   },
   listContent: {
     paddingHorizontal: 16,
   },
+  list: {
+    paddingBottom: 16,
+  },
   castItem: {
-    width: 100,
+    width: 120,
     marginRight: 16,
     alignItems: 'center',
   },
@@ -78,10 +83,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 120,
+    height: 120,
     backgroundColor: colors.gray.dark,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
   avatarPlaceholder: {
     justifyContent: 'center',
@@ -91,20 +97,23 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: colors.white,
   },
   castName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.white,
-    textAlign: 'center',
-    marginBottom: 4,
+    fontSize: 18,
+    fontWeight: '700',
+    paddingHorizontal: 8,
   },
   castRole: {
-    fontSize: 12,
-    color: colors.text.secondary,
-    textAlign: 'center',
+    fontSize: 16,
+    paddingHorizontal: 8,
+    paddingBottom: 8,
   },
+  divider: {
+    backgroundColor: '#E4E4E4',
+    height: 1,
+    width: '100%',
+    marginTop: 30
+  }
 });
 
 export default CastCarousel;

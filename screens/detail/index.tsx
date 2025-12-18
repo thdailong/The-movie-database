@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,15 +11,17 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import Container from '@/components/layout/Container';
 import { colors } from '@/theme';
-import { IMovieDetail, ICast, ICrew } from '@/types/movieDetail';
-import { IMovie } from '@/types/movie';
+import { movieToIMovie } from '@/types/movieDetail';
+import { useMovieDetail } from '@/hooks';
 import UserScore from '@/screens/detail/UserScore';
 import CastCarousel from '@/components/CastCarousel';
 import RecommendedMovies from '@/screens/detail/RecommendedMovies';
-import Button from '@/components/Button';
 import BottomNavBar from '@/components/layout/BottomNavBar';
 import ChevronLeft from '@/assets/icon/chevron-left.svg';
-import WatchlistIcon from '@/assets/icon/Watchlist.svg';
+import WatchlistIcon from '@/assets/icon/watch-list.svg';
+import { storage } from '@/utils/storage';
+import MovieDetailSkeleton from '@/components/MovieDetailSkeleton';
+import Skeleton from '@/components/Skeleton';
 
 type MovieDetailScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -59,196 +61,19 @@ const getYear = (dateString: string): string => {
   return new Date(dateString).getFullYear().toString();
 };
 
-// Mock data - in real app, this would come from API
-const mockMovieDetail: IMovieDetail = {
-  adult: false,
-  backdrop_path: '/iN41Ccw4DctL8npfmYg1j5Tr1eb.jpg',
-  belongs_to_collection: {
-    id: 87096,
-    name: 'Avatar Collection',
-    poster_path: '/3C5brXxnBxfkeKWwA1Fh4xvy4wr.jpg',
-    backdrop_path: '/6qkJLRCZp9Y3ovXti5tSuhH0DpO.jpg',
-  },
-  budget: 400000000,
-  genres: [
-    { id: 878, name: 'Science Fiction' },
-    { id: 12, name: 'Adventure' },
-    { id: 14, name: 'Fantasy' },
-  ],
-  homepage: 'https://www.avatar.com/movies/avatar-fire-and-ash',
-  id: 83533,
-  imdb_id: 'tt1757678',
-  origin_country: ['US'],
-  original_language: 'en',
-  original_title: 'Avatar: Fire and Ash',
-  overview:
-    "In the wake of the devastating war against the RDA and the loss of their eldest son, Jake Sully and Neytiri face a new threat on Pandora: the Ash People, a violent and power-hungry Na'vi tribe led by the ruthless Varang. Jake's family must fight for their survival and the future of Pandora in a conflict that pushes them to their emotional and physical limits.",
-  popularity: 211.4017,
-  poster_path: '/gDVgC9jd917NdAcqBdRRDUYi4Tq.jpg',
-  production_companies: [
-    {
-      id: 127928,
-      logo_path: '/h0rjX5vjW5r8yEnUBStFarjcLT4.png',
-      name: '20th Century Studios',
-      origin_country: 'US',
-    },
-  ],
-  production_countries: [
-    {
-      iso_3166_1: 'US',
-      name: 'United States of America',
-    },
-  ],
-  release_date: '2025-12-17',
-  revenue: 0,
-  runtime: 197,
-  spoken_languages: [
-    {
-      english_name: 'English',
-      iso_639_1: 'en',
-      name: 'English',
-    },
-  ],
-  status: 'Released',
-  tagline: 'The world of Pandora will change forever.',
-  title: 'Avatar: Fire and Ash',
-  video: false,
-  vote_average: 7.11,
-  vote_count: 69,
-};
-
-// Mock cast data
-const mockCast: ICast[] = [
-  {
-    adult: false,
-    gender: 2,
-    id: 65731,
-    known_for_department: 'Acting',
-    name: 'Sam Worthington',
-    original_name: 'Sam Worthington',
-    popularity: 8.0654,
-    profile_path: '/mflBcox36s9ZPbsZPVOuhf6axaJ.jpg',
-    cast_id: 1,
-    character: 'Jake Sully',
-    credit_id: '52fe48a89251416c91094013',
-    order: 0,
-  },
-  {
-    adult: false,
-    gender: 1,
-    id: 8691,
-    known_for_department: 'Acting',
-    name: 'Zoe Saldaña',
-    original_name: 'Zoe Saldaña',
-    popularity: 8.343,
-    profile_path: '/vQBwmsSOAd0JDaEcZ5p43J9xzsY.jpg',
-    cast_id: 2,
-    character: 'Neytiri',
-    credit_id: '52fe48a89251416c91094017',
-    order: 1,
-  },
-  {
-    adult: false,
-    gender: 1,
-    id: 10205,
-    known_for_department: 'Acting',
-    name: 'Sigourney Weaver',
-    original_name: 'Sigourney Weaver',
-    popularity: 6.621,
-    profile_path: '/wTSnfktNBLd6kwQxgvkqYw6vEon.jpg',
-    cast_id: 19,
-    character: 'Kiri',
-    credit_id: '581fa0dd92514168b30050fb',
-    order: 2,
-  },
-  {
-    adult: false,
-    gender: 2,
-    id: 32747,
-    known_for_department: 'Acting',
-    name: 'Stephen Lang',
-    original_name: 'Stephen Lang',
-    popularity: 5.1813,
-    profile_path: '/hdRiM73H2mpJws559TWHCAia7qJ.jpg',
-    cast_id: 122,
-    character: 'Quaritch',
-    credit_id: '692c32667898fdbbc1e73f05',
-    order: 3,
-  },
-];
-
-// Mock crew data
-const mockCrew: ICrew[] = [
-  {
-    adult: false,
-    gender: 2,
-    id: 1532,
-    known_for_department: 'Directing',
-    name: 'James Cameron',
-    original_name: 'James Cameron',
-    popularity: 12.345,
-    profile_path: '/k3eIoS8wgr5a4vH3FDE91VODIhs.jpg',
-    credit_id: '52fe48009251416c7502a7c3',
-    department: 'Directing',
-    job: 'Director',
-  },
-  {
-    adult: false,
-    gender: 2,
-    id: 1532,
-    known_for_department: 'Writing',
-    name: 'James Cameron',
-    original_name: 'James Cameron',
-    popularity: 12.345,
-    profile_path: '/k3eIoS8wgr5a4vH3FDE91VODIhs.jpg',
-    credit_id: '52fe48009251416c7502a7c4',
-    department: 'Writing',
-    job: 'Writer',
-  },
-  {
-    adult: false,
-    gender: 2,
-    id: 1533,
-    known_for_department: 'Writing',
-    name: 'Rick Jaffa',
-    original_name: 'Rick Jaffa',
-    popularity: 3.456,
-    profile_path: null,
-    credit_id: '52fe48009251416c7502a7c5',
-    department: 'Writing',
-    job: 'Writer',
-  },
-];
-
-// Mock recommended movies
-const mockRecommended: IMovie[] = [
-  {
-    adult: false,
-    backdrop_path: '/iN41Ccw4DctL8npfmYg1j5Tr1eb.jpg',
-    genre_ids: [878, 12, 14],
-    id: 83534,
-    original_language: 'en',
-    original_title: 'Avatar: The Way of Water',
-    overview: 'Set more than a decade after the events of the first film.',
-    popularity: 140.1139,
-    poster_path: '/gDVgC9jd917NdAcqBdRRDUYi4Tq.jpg',
-    release_date: '2022-12-16',
-    title: 'Avatar: The Way of Water',
-    video: false,
-    vote_average: 7.6,
-    vote_count: 1000,
-  },
-];
-
 const MovieDetailScreen: React.FC<Props> = ({ navigation, route }) => {
   const { movieId } = route.params;
   const [isInWatchlist, setIsInWatchlist] = useState(false);
 
-  // In real app, fetch movie detail, cast, and recommended movies based on movieId
-  const movie = mockMovieDetail;
-  const cast = mockCast;
-  const crew = mockCrew;
-  const recommended = mockRecommended;
+  // Fetch movie detail, credits, and recommended movies
+  const { movie, credits, recommended, isLoading, error } = useMovieDetail({
+    movieId,
+    includeCredits: true,
+    includeRecommended: true,
+  });
+
+  const cast = credits?.cast || [];
+  const crew = credits?.crew || [];
 
   const directors = crew.filter(c => c.job === 'Director');
   const writers = crew.filter(c => c.job === 'Writer');
@@ -261,14 +86,56 @@ const MovieDetailScreen: React.FC<Props> = ({ navigation, route }) => {
       .filter((job, index, self) => self.indexOf(job) === index);
   };
 
-  const handleAddToWatchlist = () => {
-    setIsInWatchlist(!isInWatchlist);
-    // In real app, add/remove from watchlist
+  // Check if movie is in watchlist on mount
+  useEffect(() => {
+    if (movie) {
+      const checkWatchlist = async () => {
+        const inWatchlist = await storage.isInWatchlist(movie.id);
+        setIsInWatchlist(inWatchlist);
+      };
+      checkWatchlist();
+    }
+  }, [movie]);
+
+  const handleAddToWatchlist = async () => {
+    if (!movie) return;
+
+    if (isInWatchlist) {
+      await storage.removeFromWatchlist(movie.id);
+      setIsInWatchlist(false);
+    } else {
+      const movieData = movieToIMovie(movie);
+      await storage.addToWatchlist(movieData);
+      setIsInWatchlist(true);
+    }
   };
 
   const handleRecommendedPress = (id: number) => {
-    navigation.replace('MovieDetail', { movieId: String(id) });
+    navigation.push('MovieDetail', { movieId: String(id) });
   };
+
+  // Show skeleton loading while fetching data
+  if (isLoading || !movie) {
+    return (
+      <Container>
+        <MovieDetailSkeleton />
+        <BottomNavBar />
+      </Container>
+    );
+  }
+
+  // Show error state if needed
+  if (error) {
+    return (
+      <Container>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Failed to load movie details</Text>
+          <Text style={styles.errorSubtext}>{error.message}</Text>
+        </View>
+        <BottomNavBar />
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -384,22 +251,28 @@ const MovieDetailScreen: React.FC<Props> = ({ navigation, route }) => {
                 flexDirection: 'row',
               }}
             >
-              <TouchableOpacity style={styles.watchlistButton}>
+              <TouchableOpacity
+                style={styles.watchlistButton}
+                onPress={handleAddToWatchlist}
+              >
                 <WatchlistIcon width={16} height={16} color={colors.white} />
-                <Text style={styles.watchlistButtonText}>Add to Watchlist</Text>
+                <Text style={styles.watchlistButtonText}>
+                  {isInWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
+                </Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+          {/* Cast Carousel - Always show, even if loading */}
+          {cast.length > 0 && <CastCarousel cast={cast} />}
 
-            {/* Cast Carousel */}
-            <CastCarousel cast={cast} />
-
-            {/* Recommended Movies */}
+          {/* Recommended Movies - Always show, even if loading */}
+          {recommended.length > 0 && (
             <RecommendedMovies
               movies={recommended}
               onMoviePress={handleRecommendedPress}
             />
-          </View>
-        </View>
+          )}
       </ScrollView>
       <BottomNavBar />
     </Container>
@@ -439,7 +312,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#00000026',
   },
   container: {
-    flex: 1,
     backgroundColor: colors.primary,
   },
   mainContent: {
@@ -541,6 +413,24 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 16,
     fontWeight: '600',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.black,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  errorSubtext: {
+    fontSize: 14,
+    color: colors.text.muted,
+    textAlign: 'center',
   },
 });
 
