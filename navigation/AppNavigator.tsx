@@ -1,11 +1,11 @@
 import React from 'react';
-import {Text} from 'react-native';
+import {Text, View} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {RootStackParamList, TabParamList} from './types';
-import HomeScreen from '@/screens/HomeScreen';
-import WishlistScreen from '@/screens/WishlistScreen';
-import MovieDetailScreen from '@/screens/MovieDetailScreen';
+import HomeScreen from '@/screens/home';
+import WishlistScreen from '@/screens/wishlist';
+import MovieDetailScreen from '@/screens/detail';
 import {colors} from '@/theme';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

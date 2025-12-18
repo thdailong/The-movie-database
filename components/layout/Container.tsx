@@ -1,7 +1,8 @@
 import React from 'react';
-import {View, Text, StyleSheet, ViewStyle} from 'react-native';
+import {View, StyleSheet, ViewStyle} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {colors} from '@/theme';
+import Logo from '@/assets/img/logo.svg';
 
 interface ContainerProps {
   children: React.ReactNode;
@@ -25,7 +26,7 @@ const Container: React.FC<ContainerProps> = ({
       ]}>
       {showLogo && (
         <View style={styles.logoContainer}>
-          <Text style={styles.logoText}>🎬 theMovie</Text>
+          <Logo width={80} height={58} />
         </View>
       )}
       <View style={styles.content}>{children}</View>
@@ -36,17 +37,14 @@ const Container: React.FC<ContainerProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white'
   },
   logoContainer: {
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
-  },
-  logoText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text.primary,
+    justifyContent: 'center',
   },
   content: {
     flex: 1,
