@@ -18,6 +18,7 @@ import Button from '@/components/Button';
 import MovieCard from '@/components/MovieCard';
 import { useMovies } from '@/hooks';
 import MovieCardSkeleton from '@/components/MovieCardSkeleton';
+import { storage } from '@/utils/storage';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabParamList, 'Home'>,
@@ -32,11 +33,52 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const [category, setCategory] = useState<CategoryType>('now_playing');
   const [sortBy, setSortBy] = useState<SortByType | null>(null);
   const [searchText, setSearchText] = useState('');
+  const [isLoadingPreferences, setIsLoadingPreferences] = useState(true);
 
   // Track initial values to detect changes
   const initialCategory = useRef<CategoryType>('now_playing');
   const initialSortBy = useRef<SortByType | null>(null);
   const initialSearchText = useRef<string>('');
+
+  // Load saved preferences on mount
+  useEffect(() => {
+    const loadPreferences = async () => {
+      try {
+        const savedCategory = await storage.getHomeCategory();
+        const savedSortBy = await storage.getHomeSortBy();
+        
+        if (savedCategory) {
+          setCategory(savedCategory);
+          initialCategory.current = savedCategory;
+        }
+        
+        if (savedSortBy) {
+          setSortBy(savedSortBy);
+          initialSortBy.current = savedSortBy;
+        }
+      } catch (error) {
+        console.error('Error loading preferences:', error);
+      } finally {
+        setIsLoadingPreferences(false);
+      }
+    };
+
+    loadPreferences();
+  }, []);
+
+  // Save category when it changes
+  useEffect(() => {
+    if (!isLoadingPreferences) {
+      storage.setHomeCategory(category);
+    }
+  }, [category, isLoadingPreferences]);
+
+  // Save sortBy when it changes
+  useEffect(() => {
+    if (!isLoadingPreferences) {
+      storage.setHomeSortBy(sortBy);
+    }
+  }, [sortBy, isLoadingPreferences]);
 
   const hasFiltersChanged = () => {
     return (
@@ -60,8 +102,10 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   })
 
   useEffect(() => {
-    fetchMovies(1);
-  }, []);
+    if (!isLoadingPreferences) {
+      fetchMovies(1);
+    }
+  }, [isLoadingPreferences]);
 
   const RenderFooter = () => {
     if (isLoading || isLoadingMore) {

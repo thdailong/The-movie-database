@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import Svg, {Circle} from 'react-native-svg';
+import Svg, {Circle, G} from 'react-native-svg';
 import {colors} from '@/theme';
 
 interface UserScoreProps {
@@ -17,36 +17,38 @@ const UserScore: React.FC<UserScoreProps> = ({score, size = 60}) => {
   // Determine color based on score
   const getScoreColor = (): string => {
     return '#45FF8F';
-    if (percentage >= 70) return '#4CAF50'; // Green
-    if (percentage >= 50) return '#FFC107'; // Yellow
-    return '#F44336'; // Red
   };
 
   return (
     <View style={styles.container}>
       <View style={[styles.circleContainer, {width: size, height: size}]}>
         <Svg width={size} height={size} style={styles.svg}>
-          {/* Background circle */}
-          <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke={colors.background}
-            strokeWidth={4}
-            fill="transparent"
-          />
-          {/* Progress circle - rotated by adjusting start point */}
-          <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke={getScoreColor()}
-            strokeWidth={4}
-            fill="transparent"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset + circumference * 0.25}
-            strokeLinecap="round"
-          />
+          <G
+            rotation={-90}
+            origin={`${size / 2}, ${size / 2}`}
+          >
+            {/* Progress circle - starts from top (12 o'clock) */}
+            <Circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke={getScoreColor()}
+              strokeWidth={4}
+              fill="transparent"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+            />
+            {/* Background circle */}
+            <Circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke={'#D0D2D366'}
+              strokeWidth={4}
+              fill="transparent"
+            />
+          </G>
         </Svg>
         <View style={styles.scoreContainer}>
           <Text style={styles.scoreText}>{Math.round(percentage)}%</Text>
@@ -65,6 +67,10 @@ const styles = StyleSheet.create({
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#042541',
+    borderRadius: 30,
+    outlineWidth: 4,
+    outlineColor: '#042541',
   },
   svg: {
     position: 'absolute',

@@ -85,13 +85,14 @@ const styles = StyleSheet.create({
     borderTopColor: '#E3E3E3',
   },
   optionsContainer: {
-    paddingTop: 8,
-    paddingBottom: 8,
+    padding: 18,
+    gap: 8,
   },
   option: {
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: 'transparent',
+    backgroundColor: '#F8F8F8',
+    borderRadius: 6,
   },
   optionSelected: {
     backgroundColor: colors.primary,

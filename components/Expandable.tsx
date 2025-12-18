@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: '400',
+    fontWeight: '600',
     color: colors.black,
   },
   content: {
